@@ -1,19 +1,21 @@
 FROM python:3.8
 
 RUN apt-get -y update && apt-get install -y --no-install-recommends \
-        wget \
-        python3 \
-        nginx \
-        ca-certificates \
+         wget \
+         python3 \
+         nginx \
+         ca-certificates \
     && rm -rf /var/lib/apt/lists/*
 
 RUN wget https://bootstrap.pypa.io/get-pip.py && python3 get-pip.py && \
-    pip install flask gevent guniconr && \
+    pip install flask gevent gunicorn && \
         rm -rf /root/.cache
 
-# pre-trained model package installation \
+
+#pre-trained model package installation
 RUN pip install spacy
-RUN python -m spacy download en
+RUN python -m spacy download en_core_web_sm
+
 
 # Set some environment variables. PYTHONUNBUFFERED keeps Python from buffering our standard
 # output stream, which means that logs can be delivered to the user quickly. PYTHONDONTWRITEBYTECODE
@@ -21,9 +23,7 @@ RUN python -m spacy download en
 # PATH so that the train and serve programs are found when the container is invoked.
 ENV PYTHONUNBUFFERED=TRUE
 ENV PYTHONDONTWRITEBYTECODE=TRUE
-ENV PATH="/opt/programm:${PATH}"
+ENV PATH="/opt/program:${PATH}"
 
 COPY NER /opt/program
 WORKDIR /opt/program
-
-
